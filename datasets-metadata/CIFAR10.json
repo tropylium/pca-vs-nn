@@ -1,0 +1,5 @@
+{
+    "mean_file": "CIFAR10-mean.pt",
+    "latent_dim": 64,
+    "hidden_dim": 128
+}

@@ -1,0 +1,5 @@
+{
+    "mean_file": "MNIST-mean.pt",
+    "latent_dim": 16,
+    "hidden_dim": 64
+}
