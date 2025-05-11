@@ -1,8 +1,18 @@
+from dataclasses import dataclass
 import torch
 import json
 from pathlib import Path
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+
+
+@dataclass
+class Dataset:
+    name: str
+    train: torch.Tensor
+    valid: torch.Tensor
+    mean: torch.Tensor
+    metadata: dict
 
 
 def load_dataset_raw(
@@ -80,7 +90,7 @@ def load_dataset_raw(
     return all_train_data, all_valid_data
 
 
-def load_dataset(name: str, device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+def load_dataset(name: str, device: torch.device) -> Dataset:
     train_dataset, valid_dataset = load_dataset_raw(name, device)
     metadata_dir = Path("datasets-metadata")
     metadata_path = metadata_dir / f"{name}.json"
@@ -93,4 +103,4 @@ def load_dataset(name: str, device: torch.device) -> tuple[torch.Tensor, torch.T
 
     train_dataset = train_dataset - mean
     valid_dataset = valid_dataset - mean
-    return train_dataset, valid_dataset, metadata
+    return Dataset(name, train_dataset, valid_dataset, mean, metadata)

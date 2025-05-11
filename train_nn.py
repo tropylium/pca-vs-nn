@@ -59,8 +59,8 @@ class Autoencoder(nn.Module):
         self.decoder_nn = nn.Sequential(*decoder_layers)
 
         if residual_connection:
-            self.encoder_residual = nn.Linear(input_dim, latent_dim)
-            self.decoder_residual = nn.Linear(latent_dim, input_dim)
+            self.encoder_residual = nn.Linear(input_dim, latent_dim, bias=False)
+            self.decoder_residual = nn.Linear(latent_dim, input_dim, bias=False)
         else:
             self.encoder_residual = None
             self.decoder_residual = None
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     print("using device", device)
     rng = torch.Generator().manual_seed(args.seed)
 
-    train_dataset, valid_dataset, metadata = load_dataset(args.dataset, device)
+    dataset = load_dataset(args.dataset, device)
 
     arglist = itertools.product(
         [1, 2, 4, 8, 16, 32, 64],
@@ -174,9 +174,9 @@ if __name__ == "__main__":
         exp_dir.mkdir(parents=True, exist_ok=True)
 
         model_kwargs = {
-            "input_dim": train_dataset[0].numel(),
-            "hidden_dim": metadata["hidden_dim"],
-            "latent_dim": metadata["latent_dim"],
+            "input_dim": dataset.train[0].numel(),
+            "hidden_dim": dataset.metadata["hidden_dim"],
+            "latent_dim": dataset.metadata["latent_dim"],
             "hidden_layers": hidden_layers,
             "residual_connection": residual_connection,
         }
@@ -186,7 +186,7 @@ if __name__ == "__main__":
                 torch.save(model.state_dict(), exp_dir / f"epoch={epoch}.pth")
 
         model, epoch_data = train_and_get_results(
-            (train_dataset, valid_dataset),
+            (dataset.train, dataset.valid),
             model_kwargs,
             device,
             rng,
